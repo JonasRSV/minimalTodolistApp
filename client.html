@@ -1,0 +1,325 @@
+
+<html>
+    <head>
+
+        <style>
+            body {
+                background-color: #2c3e50;
+                padding: 20px;
+                font-family:Courier New, Courier, monospace;
+            }
+
+            .container {
+                max-width: 1024px;
+                height: 95%;
+                background-color: rgba(236, 240, 241, 0.1);
+
+                margin: 0 auto;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+
+                padding: 20px;
+            }
+
+            .title {
+                height: 10%;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                font-size: 70px;
+                font-weight: bold;
+                color: white;
+                opacity: 0.9;
+            }
+
+            .input {
+                height: 10%;
+                width: 100%;
+
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .input-form {
+                height: 50px;
+                width: 40%;
+                max-width: 500px;
+
+                background-color: rgba(245, 245, 245, 0.6);
+                border-radius: 20px;
+            }
+
+            .input-bar {
+                background-color: rgba(245, 245, 245, 0.6);
+                color: #c0392b;
+                font-weight: bold;
+                width: 100%;
+                height: 100%;
+                font-size: 30px;
+                border-radius: 20px;
+            }
+
+            .success {
+                -webkit-box-shadow: 2px 2px 67px 18px rgba(54,125,56,0.72);
+                -moz-box-shadow: 2px 2px 67px 18px rgba(54,125,56,0.72);
+                box-shadow: 2px 2px 67px 18px rgba(54,125,56,0.72);
+            }
+
+            .failure {
+                -webkit-box-shadow: 2px 2px 67px 18px rgba(173,0,58,1);
+                -moz-box-shadow: 2px 2px 67px 18px rgba(173,0,58,1);
+                box-shadow: 2px 2px 67px 18px rgba(173,0,58,1);
+            }
+
+
+            .display {
+                height: 75%;
+                width: 100%;
+                overflow: auto;
+            }
+
+            .output-bar {
+
+                animation: fadeIn 0.3s;
+                position: relative;
+                height: 60px;
+                border-radius: 20px;
+                margin-bottom: 5px;
+                background-color: rgba(192, 57, 43, 0.7);
+                color: whitesmoke;
+
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+
+                font-size: 45px;
+                font-weight: bold;
+                padding: 10px;
+                transition: opacity 0.3s;
+                -webkit-transition: opacity 0.3s;
+
+                opacity: 1;
+                overflow: scroll;
+            }
+
+            .output-bar:hover {
+                background-color: rgba(192, 57, 43, 1.0);
+            }
+
+            .remove-button {
+                transition: opacity 0.5s;
+                -webkit-transition: opacity 0.5s;
+
+                width: 15%;
+                max-width: 150px;
+                background: rgba(39, 174, 96, 0.7);
+                position: absolute;
+                height: 50%;
+                right: 50px;;
+                top: 20px;
+                border-radius: 20px;
+                font-size: 25px;
+                display:flex;
+                flex-direction: row;
+                justify-content: center;
+                padding: 5px;
+
+                opacity: 1;
+                border-style: ridge;
+            }
+
+            .remove-button:hover {
+                cursor: pointer;
+                animation: pulse 0.5s linear infinite;
+            }
+
+            .hidden {
+                opacity: 0;
+            }
+
+            @keyframes fadeIn {
+                0% { opacity: 0.0;}
+                10% { opacity: 0.1;}
+                20% { opacity: 0.2;}
+                30% { opacity: 0.3;}
+                40% { opacity: 0.4;}
+                50% { opacity: 0.5;}
+                60% { opacity: 0.6;}
+                70% { opacity: 0.7;}
+                80% { opacity: 0.8;}
+                90% { opacity: 0.9;}
+                100% { opacity: 1.0;}
+            }
+
+            @keyframes pulse {
+                0% { font-size: 25px; }
+                10% { font-size: 26px; }
+                20% { font-size: 27px; }
+                30% { font-size: 28px; }
+                40% { font-size: 29px; }
+                50% { font-size: 31px; }
+                60% { font-size: 30px; }
+                70% { font-size: 29px; }
+                80% { font-size: 28px; }
+                90% { font-size: 27px; }
+                100% { font-size: 26px; }
+                
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="title">TODO's</div>
+            <div class="input">
+                <div class="input-form">
+                    <input class="input-bar" type="text" id="input">
+                </div>
+            </div>
+            <div class="display" id="todos">
+            </div>
+
+        </div>
+    </body>
+
+
+    <script >
+
+        window.onload = loadDB
+        var allTodos = [];
+        function loadDB() {
+            var xhttp = new XMLHttpRequest()
+
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    allTodos = this.responseText.split("\n");
+                    createTodos(allTodos);
+                }
+            };
+
+            xhttp.open("get", "/db", true);
+            xhttp.send();
+        }
+
+        function createTodo(todos, text) {
+            var elem = document.createElement("div");
+            var txt = document.createTextNode(text);
+            var button = document.createElement("div");
+            var btntxt = document.createTextNode("Complete");
+
+            button.onclick = function() { removeTodo(text) };
+            elem.onmouseenter = function() { showBtn(button); }
+            elem.onmouseleave = function () { hideBtn(button); }
+
+            elem.className="output-bar";
+            button.className = "remove-button hidden";
+
+            button.appendChild(btntxt);
+            elem.appendChild(txt);
+            elem.appendChild(button);
+            
+            todos.appendChild(elem);
+        }
+
+
+
+
+        async function createTodos(elements) {
+
+            var todos = document.getElementById("todos")
+
+            while(todos.firstChild) {
+                todos.removeChild(todos.firstChild);
+            }
+
+            for (i = 0; i < elements.length; i++) {
+                createTodo(todos ,elements[i]);
+                await sleep(200);
+            }
+        }
+
+        function removeTodo(txt) {
+            var newTodos = allTodos.filter(function(value) { return value != txt});
+
+            var todos = document.getElementById("todos");
+
+            todos.childNodes.forEach(function(node) {
+                if (node.textContent.split("C")[0] == txt) {
+                    node.className = "output-bar hidden";
+                }
+            })
+
+            setTimeout(function() {
+                createTodos(newTodos);
+                allTodos = newTodos;
+                writeDB();
+            }, 500);
+        }
+    
+
+        function writeDB(adding) {
+            var xhttp = new XMLHttpRequest()
+
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    if (adding) {
+                        inputSuccess();
+                    }
+                } else {
+                    if (adding) {
+                        inputFailure();
+                    }
+                }
+            };
+
+            var toAdd = allTodos.join("\n");
+            xhttp.open("post", "put", true);
+            xhttp.setRequestHeader("Content-type", "text/plain; charset=utf-8");
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send(toAdd);
+        }
+
+        document.getElementById("input").addEventListener("keypress", function(evt) {
+            if (evt.keyCode == 13) {
+                var newTodo = document.getElementById("input").value;
+                allTodos.push(newTodo);
+                writeDB(true);
+                document.getElementById("input").value = ""
+                createTodo(document.getElementById("todos"), newTodo);
+            }
+        });
+
+
+        function inputSuccess() {
+            var input = document.getElementById("input")
+            input.className = "input-bar success";
+            setTimeout(inputNormal, 2000);
+        }
+
+        function inputNormal() {
+            document.getElementById("input").className = "input-bar";
+        }
+
+        function inputFailure() {
+            var input = document.getElementById("input")
+            input.className = "input-bar failure";
+            setTimeout(inputNormal, 2000);
+        }
+
+        function hideBtn(elem) {
+            elem.className = "remove-button hidden";
+        }
+
+        function showBtn(elem) {
+            elem.className = "remove-button";
+        }
+
+        function sleep(ms) {
+            return new Promise(function(resolve) { setTimeout(resolve, ms) });
+        }
+    </script>
+</html>
